@@ -1,0 +1,23 @@
+Schema 1
+
+Users => name : String, password : String. socketId: String, status : Boolean
+Chats => room : String, sender: String, receiver: Array, readAt: Date, sendAt: Date, messages: String
+Rooms => name : String, participant: Array
+
+Schema 2
+
+Users => name : String, password : String. socketId: String, status : Boolean
+Chats => sender: String, receiver: String, readAt: Date, sendAt: Date, messages: String
+Rooms => name : String, sender: String, participant: Array, readAt: Date, sendAt: Date, messages: String
+
+
+*Fetching message 1 on 1
+Fetch Sender, Receiver and sort it based on sendAt
+
+*Fetching GroupChats
+Fetch room and sort in based on sendAt
+
+*If socket("disconnect") => remove socket.id 
+
+*chatRead
+If users join/receive messages, then it will be readed by create/update a chats/roomchat 

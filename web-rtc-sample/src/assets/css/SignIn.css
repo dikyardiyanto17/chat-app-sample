@@ -1,0 +1,19 @@
+.signin-container {
+    text-align: center;
+    background-color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+}
+
+.signin-inside-container {
+    background-color: blue;
+    padding: 3rem;
+    border-radius: 10px;
+}
+
+.signin-form{
+    margin: 20px;
+}
