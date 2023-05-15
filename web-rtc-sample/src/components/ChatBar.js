@@ -7,6 +7,7 @@ import { getUsers, findUser, findChat, sendChat } from "../stores/action/actionC
 export default function ChatBar({ socket }) {
     const chatEndRef = useRef(null);
     const dispatch = useDispatch()
+    const [userData, setUserData] = useState()
     const messagePosition = (name, compareName) => name == compareName ? "message my-message" : "message other-message float-right"
     const datePosition = (name, compareName) => name == compareName ? "message-data" : "message-data text-right"
     const [typing, setTyping] = useState('')
@@ -15,7 +16,7 @@ export default function ChatBar({ socket }) {
     const { chatto } = useParams()
     const [currentChats, setCurrentChats] = useState([])
     const isOnline = (socketId) => socketId ? "fa fa-circle online" : "fa fa-circle offline"
-    const isOnline2 = (socketId) => socketId ? "Online" : "Offline"
+    const isOnlineStatus = (socketId) => socketId ? "Online" : "Offline"
 
     const changeHandler = (e) => {
         setTyping(e.target.value)
@@ -78,6 +79,15 @@ export default function ChatBar({ socket }) {
         dispatch(findChat(chatto)).then((data) => setCurrentChats(data))
         dispatch(getUsers())
     }, [chatto])
+
+    // useEffect(() => {
+    //     socket.on('update status', (data) => {
+    //         dispatch(findUser(chatto)).then((data) => setUserData(data))
+    //     })
+    // }, [])
+    // useEffect(() => {
+    //     dispatch(findUser(chatto)).then((data) => setUserData(data))
+    // }, [])
     return (
         <div className="chat">
             <div className="chat-header clearfix">
@@ -87,8 +97,8 @@ export default function ChatBar({ socket }) {
                             <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="avatar" />
                         </a>
                         <div className="chat-about">
-                            <h6 className="m-b-0">{user?.name}</h6>
-                            <small><i className={isOnline(user.socketId)}></i> {isOnline2(user.socketId)}</small>
+                            <h6 className="m-b-0">{userData?.name}</h6>
+                            <small><i className={isOnline(userData?.socketId)}></i> {isOnlineStatus(userData?.socketId)}</small>
                         </div>
                     </div>
                     <div className="col-lg-6 hidden-sm text-right">

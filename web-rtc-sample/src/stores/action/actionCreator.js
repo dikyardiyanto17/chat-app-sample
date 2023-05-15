@@ -71,7 +71,10 @@ export const getUsers = () => {
                 access_token: localStorage.access_token
             }
         }).then((resp) => resp.json())
-            .then((data) => dispatch(fetchUsers(data)))
+            .then((data) => {
+                dispatch(fetchUsers(data))
+                return data
+            })
     }
 }
 
@@ -96,7 +99,6 @@ export const findUser = (id) => {
             },
         }).then((resp) => resp.json())
             .then((data) => {
-                dispatch(fetchUser(data))
                 return data
             })
     }
@@ -125,7 +127,6 @@ export const findChat = (id) => {
             }
         }).then((resp) => resp.json())
             .then((data) => {
-                console.log("HELLO FROM ACTION CREATER")
                 dispatch(fetchChats(data))
                 return data
             })

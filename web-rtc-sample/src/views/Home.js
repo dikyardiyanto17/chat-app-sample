@@ -14,9 +14,8 @@ export default function Home({ socket }) {
         dispatch(getUsers())
         socket.on("updating users", (data) => {
             setUpdateUsers(updateUsers + 1)
-            console.log(data, "UPDATE FROM")
         })
-    }, [updateUsers])
+    }, [updateUsers, socket])
     return (
         <>
             <div className="container-fluid container-home d-flex justify-content-center">

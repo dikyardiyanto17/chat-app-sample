@@ -4,10 +4,20 @@ import Home from "../views/Home";
 import SignIn from "../views/SignIn";
 import SignUp from "../views/SignUp";
 import socketIO from 'socket.io-client';
-import { updateSocketId } from "../stores/action/actionCreator"
+import { getUsers, updateSocketId } from "../stores/action/actionCreator"
 import Chat from "../views/Chat";
 import ChatNotSelected from "../views/ChatNotSelected";
-const socket = socketIO.connect("http://localhost:2222/");
+const socket = socketIO.connect("http://localhost:2222/", {
+    transports: ['polling', 'websocket'],
+    transportOptions: {
+        polling: {
+            extraHeaders: {
+                'X-Custom-Header-For-My-Project': 'will be used',
+                token: localStorage.getItem("access_token")
+            }
+        }
+    }
+});
 // const socket = socketIO("http://localhost:2222/", {autoConnect: false});
 
 const router = createBrowserRouter([
@@ -17,6 +27,7 @@ const router = createBrowserRouter([
             socket.emit('request socketid', "request")
             socket.on("send socketid", (data) => {
                 updateSocketId(data)
+                getUsers()
             })
             if (!localStorage.access_token) throw redirect('/signin')
             return null
