@@ -13,7 +13,8 @@ class Chats {
                 const chatData = await Chat.find().or([{ receiver: userSenderData.name, sender: userReceiverData.name }, { sender: userSenderData.name, receiver: userReceiverData.name }])
                 res.status(200).json(chatData)
             } else {
-                const chatData = await Chat.find({ room: id })
+                const groupChatData = await Room.findById(id)
+                const chatData = await Chat.find({ room: groupChatData.name })
                 res.status(200).json(chatData)
             }
         } catch (error) {

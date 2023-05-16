@@ -1,6 +1,7 @@
 const { hashPassword, comparePassword } = require("../helpers/bcryptjs");
 const { encodeToken } = require("../helpers/jwt");
 const User = require("../schema/User");
+const {decodeToken} = require('../helpers/jwt.js')
 
 class Users {
   static async register(req, res, next) {
@@ -52,6 +53,7 @@ class Users {
   static async fetchAllUser(req, res, next) {
     try {
       const userData = await User.find().select("socketId name status")
+      // console.log(userData)
       res.status(200).json(userData)
     } catch (error) {
       next(error)
@@ -71,6 +73,7 @@ class Users {
   static async removeSocketId(socketId) {
     try {
       const data = await User.findOneAndUpdate({ socketId }, { socketId: null })
+      return data
     } catch (error) {
       console.log(error)
     }
@@ -94,6 +97,21 @@ class Users {
       res.status(200).json(data)
     } catch (error) {
       next(error)
+    }
+  }
+
+  static async getUserFromServer() {
+    const userData = await User.find().select("socketId name status")
+    return userData
+  }
+
+  static async currentUserServer(accessToken, socketId) {
+    try {
+      const data = decodeToken(accessToken, socketId)
+      await User.findByIdAndUpdate(data.id, { socketId })
+      return data
+    } catch (error) {
+      console.log(error)
     }
   }
 }

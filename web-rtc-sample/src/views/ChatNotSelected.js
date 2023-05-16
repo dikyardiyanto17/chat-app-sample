@@ -44,7 +44,7 @@ export default function ChatNotSelected({ socket }) {
                                                             const roomName = [localStorage.getItem('name'), user.name]
                                                             const nameRoom = roomName.sort().join('_')
                                                             socket.emit('join', nameRoom)
-                                                            navigate(`/chat/${user._id}`)
+                                                            window.location.href = `/chat/${user._id}`;
                                                             console.log(nameRoom)
                                                         }}>
                                                             <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="avatar" />

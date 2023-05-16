@@ -1,32 +1,25 @@
 import '../assets/css/Chat.css'
 import { useNavigate, useParams } from "react-router-dom"
-import { useEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { getUsers, findUser, findChat } from "../stores/action/actionCreator"
+import ListUsers from '../components/ListUsers'
 import ChatBar from '../components/ChatBar'
 import LogOutButton from '../components/LogOutButton'
 
 export default function Chat({ socket }) {
     const dispatch = useDispatch()
-    const navigate = useNavigate()
     const users = useSelector((state) => state.users.users)
-    const [updateUsers, setUpdateUsers] = useState(0)
+    const [updateUsers, setUpdateUsers] = useState([])
     const { chatto } = useParams()
-    const isOnline = (socketId) => socketId ? "fa fa-circle online" : "fa fa-circle offline"
-    const isOnline2 = (socketId) => socketId ? "Online" : "Offline"
-    const isActive = (id, compareId) => id == compareId ? "clearfix active" : "clearfix"
 
-    useEffect(() => {
-        dispatch(findUser(chatto))
-    }, [socket])
 
     useEffect(() => {
         socket.on("updating users", (data) => {
-            setUpdateUsers(updateUsers + 1)
-            dispatch(getUsers())
-            console.log("HELO")
+            setUpdateUsers(data)
+            getUsers()
         })
-    }, [updateUsers])
+    }, [])
 
     useEffect(() => {
         dispatch(findUser(chatto)).then((data) => {
@@ -37,6 +30,7 @@ export default function Chat({ socket }) {
         dispatch(findChat(chatto))
         dispatch(getUsers())
     }, [])
+
 
     return (
         <>
@@ -52,33 +46,15 @@ export default function Chat({ socket }) {
                                     <input type="text" className="form-control" placeholder="Search..." />
                                 </div>
                                 <ul className="list-unstyled chat-list mt-2 mb-0">
-                                    {users &&
+                                    {updateUsers &&
                                         <>
-                                            {users.map((user) => {
-                                                if (user.name != localStorage.getItem("name")) {
-                                                    return (
-                                                        <li className={isActive(user._id, chatto)} key={user._id} onClick={() => {
-                                                            dispatch(findUser(user._id))
-                                                            const roomName = [localStorage.getItem('name'), user.name]
-                                                            const nameRoom = roomName.sort().join('_')
-                                                            socket.emit('join', nameRoom)
-                                                            navigate(`/chat/${user._id}`)
-                                                            console.log(nameRoom)
-                                                        }}>
-                                                            <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="avatar" />
-                                                            <div className="about">
-                                                                <div className="name">{user.name}</div>
-                                                                <div className="status"> <i className={isOnline(user.socketId)}></i>{isOnline2(user.socketId)}</div>
-                                                            </div>
-                                                        </li>
-                                                    )
-                                                }
+                                            {updateUsers.map((user) => {
+                                                return (<ListUsers key={user._id} userInfo={user} socket={socket} />)
                                             })}
                                         </>}
-
                                 </ul>
                             </div>
-                            <ChatBar socket={socket}/>
+                            <ChatBar socket={socket} />
                             <LogOutButton />
                         </div>
                     </div>
