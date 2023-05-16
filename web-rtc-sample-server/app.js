@@ -29,18 +29,17 @@ app.use(express.json())
 app.use(router)
 app.use(errorHandler)
 io.on('connection', (socket) => {
-    // const userDataServer = await User.find().select("socketId name status")
-    Users.currentUserServer(socket.handshake.headers.token, socket.id)
-    Users.getUserFromServer().then((data) => {
-        io.emit("updating users", data)
+    Users.currentUserServer(socket.handshake.headers.token, socket.id).then((_) => {
+        Users.getUserFromServer().then((data) => {
+            io.emit("updating users", data)
+        })
     })
-    // io.emit("update status", "online")
     socket.on('join', (data) => {
         socket.join(data)
+        console.log(data)
     })
 
     socket.on('chat message', (data) => {
-        console.log(data, "SOCKET ID : ", socket.id)
         socket.to(data.room).emit('response', data);
     });
 
@@ -62,8 +61,6 @@ io.on('connection', (socket) => {
                 io.emit("updating users", data)
             })
         })
-        // io.emit('update status', "offline")
-        // console.log('user Disconnect with socket id : ' + socket.id)
     })
 });
 

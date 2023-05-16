@@ -1,9 +1,15 @@
 import {
     FetchingChats,
+    FetchingRoom,
+    FetchingRooms,
     FetchingUser,
     FetchingUsers,
 } from "./actionType";
 const baseUrl = "http://localhost:2222";
+
+export const fetchRooms = (payload) => {
+    return { type: FetchingRooms, payload }
+}
 
 export const fetchUsers = (payload) => {
     return { type: FetchingUsers, payload };
@@ -15,6 +21,10 @@ export const fetchUser = (payload) => {
 
 export const fetchChats = (payload) => {
     return { type: FetchingChats, payload }
+}
+
+export const fetchRoom = (payload) => {
+    return {type: FetchingRoom, payload}
 }
 
 export const login = (formLogin) => {
@@ -130,5 +140,37 @@ export const findChat = (id) => {
                 dispatch(fetchChats(data))
                 return data
             })
+    }
+}
+
+export const findGroup = () => {
+    return (dispatch) => {
+        return fetch(baseUrl + '/room', {
+            method: 'get',
+            headers: {
+                "Content-Type": "application/json",
+                access_token: localStorage.access_token
+            }
+        }).then((resp) => resp.json())
+            .then((data) => {
+                dispatch(fetchRooms(data))
+                return data
+            })
+    }
+}
+
+export const findTheGroup = (id) => {
+    return (dispatch) => {
+        return fetch(baseUrl + '/room/' + id, {
+            method: "get",
+            headers: {
+                "Content-Type": "application/json",
+                access_token: localStorage.access_token
+            }
+        }).then((resp) => resp.json())
+        .then(((data) => {
+            dispatch(fetchRoom(data))
+            return data
+        }))
     }
 }

@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { getUsers, findUser, findChat, sendChat } from "../stores/action/actionCreator"
 
-export default function ChatBar({ socket }) {
+export default function ChatBarGroup({ socket, roomData }) {
     const chatEndRef = useRef(null);
     const dispatch = useDispatch()
     const [userData, setUserData] = useState()
@@ -13,10 +13,11 @@ export default function ChatBar({ socket }) {
     const [typing, setTyping] = useState('')
     const user = useSelector((state) => state.users.user)
     const chats = useSelector((state) => state.chats.chats)
-    const { chatto } = useParams()
+    const { room } = useParams()
     const [currentChats, setCurrentChats] = useState([])
     const isOnline = (socketId) => socketId ? "fa fa-circle online" : "fa fa-circle offline"
     const isOnlineStatus = (socketId) => socketId ? "Online" : "Offline"
+    const isSender = (sender, currentUser) => sender == currentUser ? "You" : sender
 
     const changeHandler = (e) => {
         setTyping(e.target.value)
@@ -51,24 +52,22 @@ export default function ChatBar({ socket }) {
 
     const chat = (e) => {
         e.preventDefault()
-        dispatch(findUser(chatto)).then((data) => {
-            const roomName = [localStorage.getItem("name"), data.name].sort().join('_')
+        dispatch(findUser(room)).then((data) => {
             const data2 = {
-                room: roomName,
+                room: roomData._id,
                 message: typing,
                 sender: localStorage.getItem("name"),
-                receiver: data.name,
                 sentAt: new Date(),
                 _id: Math.random()
             }
-            dispatch(sendChat({ message: typing, sender: localStorage.getItem("name"), receiver: data.name }))
+            dispatch(sendChat({ message: typing, sender: localStorage.getItem("name"), roomName: roomData.name }))
             socket.emit("chat message", data2)
             setCurrentChats([...currentChats, data2])
             setTyping('')
         })
     }
     useEffect(() => {
-        dispatch(findChat(chatto))
+        dispatch(findChat(room))
         socket.on("response", (data) => {
             setCurrentChats([...currentChats, data])
         })
@@ -76,17 +75,17 @@ export default function ChatBar({ socket }) {
     }, [socket, currentChats])
 
     useEffect(() => {
-        dispatch(findChat(chatto)).then((data) => setCurrentChats(data))
+        dispatch(findChat(room)).then((data) => setCurrentChats(data))
         dispatch(getUsers())
-    }, [chatto])
+    }, [room])
 
     // useEffect(() => {
     //     socket.on('update status', (data) => {
-    //         dispatch(findUser(chatto)).then((data) => setUserData(data))
+    //         dispatch(findUser(room)).then((data) => setUserData(data))
     //     })
     // }, [])
     // useEffect(() => {
-    //     dispatch(findUser(chatto)).then((data) => setUserData(data))
+    //     dispatch(findUser(room)).then((data) => setUserData(data))
     // }, [])
     return (
         <div className="chat">
@@ -97,8 +96,9 @@ export default function ChatBar({ socket }) {
                             <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="avatar" />
                         </a>
                         <div className="chat-about">
-                            <h6 className="m-b-0">{userData?.name}</h6>
-                            <small><i className={isOnline(userData?.socketId)}></i> {isOnlineStatus(userData?.socketId)}</small>
+                            <h6 className="m-b-0">{roomData?.name}</h6>
+                            <small><i></i>Hola</small>
+                            {/* <small><i className={isOnline(userData?.socketId)}></i> {isOnlineStatus(userData?.socketId)}</small> */}
                         </div>
                     </div>
                     <div className="col-lg-6 hidden-sm text-right">
@@ -112,8 +112,10 @@ export default function ChatBar({ socket }) {
                             <li className="clearfix" key={chat?._id}>
                                 <div className={datePosition(localStorage.getItem("name"), chat?.sender)}>
                                     <span className="message-data-time">{formatTime(chat?.sentAt)}</span>
+                                    <p className="message-data-time">{isSender(chat?.sender, localStorage.getItem("name"))}</p>
                                 </div>
-                                <div className={messagePosition(localStorage.getItem("name"), chat.sender)}>{chat?.message}</div>
+
+                                <div className={messagePosition(localStorage.getItem("name"), chat.sender)}><p>{chat?.message}</p></div>
                             </li>
                         )
                     })}

@@ -21,8 +21,6 @@ export default function Chat({ socket }) {
         })
     }, [])
 
-    console.log(updateUsers)
-
     useEffect(() => {
         dispatch(findUser(chatto)).then((data) => {
             const roomName = [localStorage.getItem('name'), data.name]
@@ -32,6 +30,7 @@ export default function Chat({ socket }) {
         dispatch(findChat(chatto))
         dispatch(getUsers())
     }, [])
+
 
     return (
         <>
@@ -53,7 +52,6 @@ export default function Chat({ socket }) {
                                                 return (<ListUsers key={user._id} userInfo={user} socket={socket} />)
                                             })}
                                         </>}
-
                                 </ul>
                             </div>
                             <ChatBar socket={socket} />

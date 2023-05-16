@@ -16,6 +16,7 @@ export default function ListUsers({ userInfo, socket }) {
             {userInfo.name != localStorage.getItem("name") && (
                 <li className={isActive(userInfo._id, chatto)} key={userInfo._id} onClick={() => {
                     dispatch(findUser(userInfo._id))
+                    dispatch(getUsers())
                     const roomName = [localStorage.getItem('name'), userInfo.name]
                     const nameRoom = roomName.sort().join('_')
                     socket.emit('join', nameRoom)

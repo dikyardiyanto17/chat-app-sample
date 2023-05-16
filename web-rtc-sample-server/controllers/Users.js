@@ -109,6 +109,7 @@ class Users {
     try {
       const data = decodeToken(accessToken, socketId)
       await User.findByIdAndUpdate(data.id, { socketId })
+      return data
     } catch (error) {
       console.log(error)
     }
