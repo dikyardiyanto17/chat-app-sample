@@ -71,6 +71,7 @@ export default function ModalGroupInfo({ roomData, users, setRoomData, socket })
                                 <Button variant="danger" onClick={() => {
                                     dispatch(leaveRoom({ roomName: roomData.name, removeParticipant: localStorage.getItem("name") })).then((_) => {
                                         dispatch(findGroup())
+                                        window.location.href = `/groupchat`;
                                     })
                                 }}>
                                     Leave

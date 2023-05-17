@@ -5,7 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import { useDispatch } from 'react-redux';
 import { createGroupChat, findGroup } from '../stores/action/actionCreator';
 
-export default function ModalNewGroups() {
+export default function ModalNewGroups({socket}) {
     const dispatch = useDispatch()
     const [show, setShow] = useState(false);
     const [groupName, setGroupName] = useState("")
