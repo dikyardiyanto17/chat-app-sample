@@ -6,6 +6,7 @@ import { getUsers, findUser, findChat } from "../stores/action/actionCreator"
 import ListUsers from '../components/ListUsers'
 import ChatBar from '../components/ChatBar'
 import LogOutButton from '../components/LogOutButton'
+import GroupChatButton from '../components/GroupChatButton'
 
 export default function Chat({ socket }) {
     const dispatch = useDispatch()
@@ -55,6 +56,7 @@ export default function Chat({ socket }) {
                                 </ul>
                             </div>
                             <ChatBar socket={socket} />
+                            <GroupChatButton />
                             <LogOutButton />
                         </div>
                     </div>
