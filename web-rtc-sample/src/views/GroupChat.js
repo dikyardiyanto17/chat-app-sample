@@ -21,6 +21,8 @@ export default function GroupChat({ socket }) {
     useEffect(() => {
         dispatch(findGroup())
         socket.on("add participant responses", (hello) => {
+            console.log("HELLO 1")
+            dispatch(findGroup())
             dispatch(findTheGroup(room)).then((data) => {
                 setRoomData(data)
             })
@@ -64,8 +66,8 @@ export default function GroupChat({ socket }) {
                                         </>}
                                 </ul>
                             </div>
-                            <ChatBarGroup socket={socket} roomData={roomData} users={users} setRoomData={setRoomData}/>
-                            <ModalNewGroups />
+                            <ChatBarGroup socket={socket} roomData={roomData} users={users} setRoomData={setRoomData} />
+                            <ModalNewGroups socket={socket} />
                             <PersonalChatButton />
                             <LogOutButton />
                         </div>

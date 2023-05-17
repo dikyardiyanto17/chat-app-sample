@@ -32,6 +32,7 @@ io.on('connection', (socket) => {
     Users.currentUserServer(socket.handshake.headers.token, socket.id).then((_) => {
         Users.getUserFromServer().then((data) => {
             io.emit("updating users", data)
+            console.log("ONLINE")
         })
     })
     socket.on('join', (data) => {
@@ -51,7 +52,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on("add participant", (data) => {
-        socket.emit("add participant responses", data)
+        io.emit("add participant responses", data)
     })
 
     socket.on('save socketid', (data) => {
@@ -62,6 +63,7 @@ io.on('connection', (socket) => {
         Users.removeSocketId(socket.id).then((_) => {
             Users.getUserFromServer().then((data) => {
                 io.emit("updating users", data)
+                console.log("OFFLINE")
             })
         })
     })

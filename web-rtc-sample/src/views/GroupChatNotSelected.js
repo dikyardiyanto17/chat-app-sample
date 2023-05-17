@@ -56,7 +56,7 @@ export default function GroupChatNotSelected({ socket }) {
                             </div>
                             <div className="chat-message clearfix">
                             </div>
-                            <ModalNewGroups />
+                            <ModalNewGroups socket={socket}/>
                             <PersonalChatButton />
                             <LogOutButton />
                         </div>
