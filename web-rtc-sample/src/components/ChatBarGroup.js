@@ -3,8 +3,9 @@ import { useParams } from "react-router-dom"
 import { useEffect, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { getUsers, findUser, findChat, sendChat } from "../stores/action/actionCreator"
+import ModalGroupInfo from './ModalGroupInfo'
 
-export default function ChatBarGroup({ socket, roomData }) {
+export default function ChatBarGroup({ socket, roomData, users, setRoomData }) {
     const chatEndRef = useRef(null);
     const dispatch = useDispatch()
     const [userData, setUserData] = useState()
@@ -79,14 +80,6 @@ export default function ChatBarGroup({ socket, roomData }) {
         dispatch(getUsers())
     }, [room])
 
-    // useEffect(() => {
-    //     socket.on('update status', (data) => {
-    //         dispatch(findUser(room)).then((data) => setUserData(data))
-    //     })
-    // }, [])
-    // useEffect(() => {
-    //     dispatch(findUser(room)).then((data) => setUserData(data))
-    // }, [])
     return (
         <div className="chat">
             <div className="chat-header clearfix">
@@ -96,8 +89,7 @@ export default function ChatBarGroup({ socket, roomData }) {
                             <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="avatar" />
                         </a>
                         <div className="chat-about">
-                            <h6 className="m-b-0">{roomData?.name}</h6>
-                            <small><i></i>Hola</small>
+                            <ModalGroupInfo roomData={roomData} users={users} setRoomData={setRoomData} socket={socket}/>
                             {/* <small><i className={isOnline(userData?.socketId)}></i> {isOnlineStatus(userData?.socketId)}</small> */}
                         </div>
                     </div>

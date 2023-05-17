@@ -24,7 +24,7 @@ export const fetchChats = (payload) => {
 }
 
 export const fetchRoom = (payload) => {
-    return {type: FetchingRoom, payload}
+    return { type: FetchingRoom, payload }
 }
 
 export const login = (formLogin) => {
@@ -168,9 +168,52 @@ export const findTheGroup = (id) => {
                 access_token: localStorage.access_token
             }
         }).then((resp) => resp.json())
-        .then(((data) => {
-            dispatch(fetchRoom(data))
-            return data
-        }))
+            .then(((data) => {
+                dispatch(fetchRoom(data))
+                return data
+            }))
+    }
+}
+
+export const createGroupChat = (data) => {
+    return (dispatch) => {
+        return fetch(baseUrl + '/room', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                access_token: localStorage.access_token
+            },
+            body: JSON.stringify(data)
+        }).then((resp) => resp.json())
+    }
+}
+
+export const leaveRoom = (data) => {
+    return (dispatch) => {
+        return fetch(baseUrl + '/leave', {
+            method: "put",
+            headers: {
+                "Content-Type": "application/json",
+                access_token: localStorage.access_token
+            },
+            body: JSON.stringify(data)
+        }).then((resp) => resp.json())
+            .then((data) => data)
+    }
+}
+
+export const addParticipants = (data) => {
+    return (dispatch) => {
+        return fetch(baseUrl + '/room', {
+            method: "put",
+            headers: {
+                "Content-Type": "application/json",
+                access_token: localStorage.access_token
+            },
+            body: JSON.stringify(data)
+        }).then((resp) => resp.json())
+        .then((response) => {
+            dispatch(findTheGroup(data.roomId))
+        })
     }
 }

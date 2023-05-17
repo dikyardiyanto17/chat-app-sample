@@ -36,7 +36,6 @@ io.on('connection', (socket) => {
     })
     socket.on('join', (data) => {
         socket.join(data)
-        console.log(data)
     })
 
     socket.on('chat message', (data) => {
@@ -49,6 +48,10 @@ io.on('connection', (socket) => {
 
     socket.on("request socketid", (data) => {
         socket.emit('send socketid', socket.id)
+    })
+
+    socket.on("add participant", (data) => {
+        socket.emit("add participant responses", data)
     })
 
     socket.on('save socketid', (data) => {

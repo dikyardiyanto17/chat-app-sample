@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import '../assets/css/Chat.css'
 import LogOutButton from "../components/LogOutButton"
 import { useDispatch, useSelector } from 'react-redux'
-import { findGroup } from '../stores/action/actionCreator'
+import { findGroup, getUsers } from '../stores/action/actionCreator'
+import ModalNewGroups from '../components/ModalNewGroups'
+import PersonalChatButton from '../components/PersonalChatButton'
 
 export default function GroupChatNotSelected({ socket }) {
     const dispatch = useDispatch()
@@ -10,6 +12,7 @@ export default function GroupChatNotSelected({ socket }) {
     const listRoom = useState([])
     useEffect(() => {
         dispatch(findGroup())
+        dispatch(getUsers())
     }, [])
     return (
         <>
@@ -30,9 +33,9 @@ export default function GroupChatNotSelected({ socket }) {
                                             {rooms?.map((room) => {
                                                 return (
                                                     <li className="clearfix" key={room._id} onClick={() => {
+                                                        dispatch(getUsers())
                                                         socket.emit('join', room._id)
                                                         window.location.href = `/groupchat/${room._id}`;
-                                                        console.log(room._id)
                                                     }}>
                                                         <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="avatar" />
                                                         <div className="about">
@@ -53,6 +56,8 @@ export default function GroupChatNotSelected({ socket }) {
                             </div>
                             <div className="chat-message clearfix">
                             </div>
+                            <ModalNewGroups />
+                            <PersonalChatButton />
                             <LogOutButton />
                         </div>
                     </div>
