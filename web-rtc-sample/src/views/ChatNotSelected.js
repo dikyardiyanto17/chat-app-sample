@@ -10,16 +10,16 @@ export default function ChatNotSelected({ socket }) {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const users = useSelector((state) => state.users.users)
-    const [updateUsers, setUpdateUsers] = useState(0)
+    const [updateUsers, setUpdateUsers] = useState([])
     const isOnline = (socketId) => socketId ? "fa fa-circle online" : "fa fa-circle offline"
     const isOnline2 = (socketId) => socketId ? "Online" : "Offline"
 
     useEffect(() => {
-        dispatch(getUsers())
         socket.on("updating users", (data) => {
-            setUpdateUsers(updateUsers + 1)
+            setUpdateUsers(data)
+            getUsers()
         })
-    }, [updateUsers])
+    }, [])
     useEffect(() => {
         dispatch(getUsers())
     }, [])
@@ -37,9 +37,9 @@ export default function ChatNotSelected({ socket }) {
                                     <input type="text" className="form-control" placeholder="Search..." />
                                 </div>
                                 <ul className="list-unstyled chat-list mt-2 mb-0">
-                                    {users &&
+                                    {updateUsers &&
                                         <>
-                                            {users.map((user) => {
+                                            {updateUsers.map((user) => {
                                                 if (user.name != localStorage.getItem("name")) {
                                                     return (
                                                         <li className="clearfix" key={user._id} onClick={() => {

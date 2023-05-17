@@ -80,11 +80,11 @@ export default function ChatBar({ socket }) {
         dispatch(getUsers())
     }, [chatto])
 
-    // useEffect(() => {
-    //     socket.on('update status', (data) => {
-    //         dispatch(findUser(chatto)).then((data) => setUserData(data))
-    //     })
-    // }, [])
+    useEffect(() => {
+        socket.on('updating users', (data) => {
+            dispatch(findUser(chatto)).then((data) => setUserData(data))
+        })
+    }, [])
     // useEffect(() => {
     //     dispatch(findUser(chatto)).then((data) => setUserData(data))
     // }, [])

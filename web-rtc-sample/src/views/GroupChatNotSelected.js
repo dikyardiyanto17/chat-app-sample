@@ -13,6 +13,9 @@ export default function GroupChatNotSelected({ socket }) {
     useEffect(() => {
         dispatch(findGroup())
         dispatch(getUsers())
+        socket.on("add participant responses", (hello) => {
+            dispatch(findGroup())
+        })
     }, [])
     return (
         <>
