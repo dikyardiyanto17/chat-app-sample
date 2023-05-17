@@ -6,6 +6,7 @@ import { findGroup, findTheGroup } from '../stores/action/actionCreator'
 import ChatBarGroup from '../components/ChatBarGroup'
 import { useNavigate, useParams } from 'react-router-dom'
 import ListRooms from '../components/ListRoom'
+import ModalNewGroups from '../components/ModalNewGroups'
 
 export default function GroupChat({ socket }) {
     const dispatch = useDispatch()
@@ -13,7 +14,7 @@ export default function GroupChat({ socket }) {
     const rooms = useSelector((state) => state.rooms.rooms)
     const [roomData, setRoomData] = useState({})
     const { room } = useParams()
-    const listRoom = useState([])
+    const [listRoom, setListRoom] = useState([])
     useEffect(() => {
         dispatch(findGroup())
         dispatch(findTheGroup(room)).then((data) => {
@@ -39,13 +40,14 @@ export default function GroupChat({ socket }) {
                                         <>
                                             {rooms?.map((room) => {
                                                 return (
-                                                    <ListRooms key={room._id} socket={socket} roomInfo={room} />
+                                                    <ListRooms key={room._id} socket={socket} roomInfo={room} setRoomData={setRoomData} />
                                                 )
                                             })}
                                         </>}
                                 </ul>
                             </div>
                             <ChatBarGroup socket={socket} roomData={roomData} />
+                            <ModalNewGroups />
                             <LogOutButton />
                         </div>
                     </div>

@@ -32,6 +32,7 @@ io.on('connection', (socket) => {
     Users.currentUserServer(socket.handshake.headers.token, socket.id).then((_) => {
         Users.getUserFromServer().then((data) => {
             io.emit("updating users", data)
+            console.log("Online")
         })
     })
     socket.on('join', (data) => {
@@ -59,6 +60,7 @@ io.on('connection', (socket) => {
         Users.removeSocketId(socket.id).then((_) => {
             Users.getUserFromServer().then((data) => {
                 io.emit("updating users", data)
+                console.log("Offline")
             })
         })
     })

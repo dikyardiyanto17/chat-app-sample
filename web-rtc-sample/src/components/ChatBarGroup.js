@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom"
 import { useEffect, useState, useRef } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { getUsers, findUser, findChat, sendChat } from "../stores/action/actionCreator"
+import ModalGroupInfo from './ModalGroupInfo'
 
 export default function ChatBarGroup({ socket, roomData }) {
     const chatEndRef = useRef(null);
@@ -96,8 +97,7 @@ export default function ChatBarGroup({ socket, roomData }) {
                             <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="avatar" />
                         </a>
                         <div className="chat-about">
-                            <h6 className="m-b-0">{roomData?.name}</h6>
-                            <small><i></i>Hola</small>
+                            <ModalGroupInfo roomData={roomData}/>
                             {/* <small><i className={isOnline(userData?.socketId)}></i> {isOnlineStatus(userData?.socketId)}</small> */}
                         </div>
                     </div>
