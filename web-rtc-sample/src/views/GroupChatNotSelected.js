@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import '../assets/css/Chat.css'
 import LogOutButton from "../components/LogOutButton"
 import { useDispatch, useSelector } from 'react-redux'
-import { findGroup } from '../stores/action/actionCreator'
+import { findGroup, getUsers } from '../stores/action/actionCreator'
 
 export default function GroupChatNotSelected({ socket }) {
     const dispatch = useDispatch()
@@ -10,6 +10,7 @@ export default function GroupChatNotSelected({ socket }) {
     const listRoom = useState([])
     useEffect(() => {
         dispatch(findGroup())
+        dispatch(getUsers())
     }, [])
     return (
         <>
@@ -30,6 +31,7 @@ export default function GroupChatNotSelected({ socket }) {
                                             {rooms?.map((room) => {
                                                 return (
                                                     <li className="clearfix" key={room._id} onClick={() => {
+                                                        dispatch(getUsers())
                                                         socket.emit('join', room._id)
                                                         window.location.href = `/groupchat/${room._id}`;
                                                     }}>

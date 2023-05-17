@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { getUsers, findUser, findChat, sendChat } from "../stores/action/actionCreator"
 import ModalGroupInfo from './ModalGroupInfo'
 
-export default function ChatBarGroup({ socket, roomData }) {
+export default function ChatBarGroup({ socket, roomData, users, setRoomData }) {
     const chatEndRef = useRef(null);
     const dispatch = useDispatch()
     const [userData, setUserData] = useState()
@@ -89,7 +89,7 @@ export default function ChatBarGroup({ socket, roomData }) {
                             <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="avatar" />
                         </a>
                         <div className="chat-about">
-                            <ModalGroupInfo roomData={roomData}/>
+                            <ModalGroupInfo roomData={roomData} users={users} setRoomData={setRoomData} socket={socket}/>
                             {/* <small><i className={isOnline(userData?.socketId)}></i> {isOnlineStatus(userData?.socketId)}</small> */}
                         </div>
                     </div>

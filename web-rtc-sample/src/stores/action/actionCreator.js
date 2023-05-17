@@ -201,3 +201,19 @@ export const leaveRoom = (data) => {
             .then((data) => data)
     }
 }
+
+export const addParticipants = (data) => {
+    return (dispatch) => {
+        return fetch(baseUrl + '/room', {
+            method: "put",
+            headers: {
+                "Content-Type": "application/json",
+                access_token: localStorage.access_token
+            },
+            body: JSON.stringify(data)
+        }).then((resp) => resp.json())
+        .then((response) => {
+            dispatch(findTheGroup(data.roomId))
+        })
+    }
+}

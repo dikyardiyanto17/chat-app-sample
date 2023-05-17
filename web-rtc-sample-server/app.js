@@ -50,6 +50,10 @@ io.on('connection', (socket) => {
         socket.emit('send socketid', socket.id)
     })
 
+    socket.on("add participant", (data) => {
+        socket.emit("add participant responses", data)
+    })
+
     socket.on('save socketid', (data) => {
         console.log(socket.id, data)
     })

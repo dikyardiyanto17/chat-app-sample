@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import '../assets/css/Chat.css'
 import LogOutButton from "../components/LogOutButton"
 import { useDispatch, useSelector } from 'react-redux'
-import { findGroup, findTheGroup } from '../stores/action/actionCreator'
+import { findGroup, findTheGroup, getUsers } from '../stores/action/actionCreator'
 import ChatBarGroup from '../components/ChatBarGroup'
 import { useNavigate, useParams } from 'react-router-dom'
 import ListRooms from '../components/ListRoom'
@@ -12,13 +12,30 @@ export default function GroupChat({ socket }) {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const rooms = useSelector((state) => state.rooms.rooms)
+    const users = useSelector((state) => state.users.users)
     const [roomData, setRoomData] = useState({})
     const { room } = useParams()
+    const [allUsers, setAllUsers] = useState([])
     const [listRoom, setListRoom] = useState([])
+    useEffect(() => {
+        dispatch(findGroup())
+        socket.on("add participant responses", (hello) => {
+            dispatch(findTheGroup(room)).then((data) => {
+                setRoomData(data)
+            })
+        })
+        dispatch(getUsers()).then((data) => {
+            setAllUsers(data)
+        })
+        socket.emit('join', room)
+    }, [room])
     useEffect(() => {
         dispatch(findGroup())
         dispatch(findTheGroup(room)).then((data) => {
             setRoomData(data)
+        })
+        dispatch(getUsers()).then((data) => {
+            setAllUsers(data)
         })
         socket.emit('join', room)
     }, [])
@@ -46,7 +63,7 @@ export default function GroupChat({ socket }) {
                                         </>}
                                 </ul>
                             </div>
-                            <ChatBarGroup socket={socket} roomData={roomData} />
+                            <ChatBarGroup socket={socket} roomData={roomData} users={users} setRoomData={setRoomData}/>
                             <ModalNewGroups />
                             <LogOutButton />
                         </div>
