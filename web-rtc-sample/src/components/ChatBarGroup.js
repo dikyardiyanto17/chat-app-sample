@@ -80,14 +80,6 @@ export default function ChatBarGroup({ socket, roomData }) {
         dispatch(getUsers())
     }, [room])
 
-    // useEffect(() => {
-    //     socket.on('update status', (data) => {
-    //         dispatch(findUser(room)).then((data) => setUserData(data))
-    //     })
-    // }, [])
-    // useEffect(() => {
-    //     dispatch(findUser(room)).then((data) => setUserData(data))
-    // }, [])
     return (
         <div className="chat">
             <div className="chat-header clearfix">

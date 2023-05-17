@@ -32,7 +32,6 @@ export default function GroupChatNotSelected({ socket }) {
                                                     <li className="clearfix" key={room._id} onClick={() => {
                                                         socket.emit('join', room._id)
                                                         window.location.href = `/groupchat/${room._id}`;
-                                                        console.log(room._id)
                                                     }}>
                                                         <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="avatar" />
                                                         <div className="about">

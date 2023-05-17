@@ -15,7 +15,6 @@ export default function ListRooms({ roomInfo, socket, setRoomData }) {
                     dispatch(findTheGroup(roomInfo._id)).then((data) => setRoomData(data))
                     socket.emit('join', roomInfo._id)
                     navigate(`/groupchat/${roomInfo._id}`)
-                    console.log(roomInfo._id)
                 }}>
                     <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="avatar" />
                     <div className="about">

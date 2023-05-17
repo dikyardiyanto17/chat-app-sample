@@ -20,7 +20,6 @@ const socket = socketIO.connect("http://localhost:2222/", {
         }
     }
 });
-// const socket = socketIO("http://localhost:2222/", {autoConnect: false});
 
 const router = createBrowserRouter([
     {

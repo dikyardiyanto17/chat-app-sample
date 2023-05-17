@@ -18,11 +18,8 @@ export default function Chat({ socket }) {
         socket.on("updating users", (data) => {
             setUpdateUsers(data)
             getUsers()
-            console.log("HELO")
         })
     }, [])
-
-    console.log(updateUsers, "<<<<")
 
     useEffect(() => {
         dispatch(findUser(chatto)).then((data) => {

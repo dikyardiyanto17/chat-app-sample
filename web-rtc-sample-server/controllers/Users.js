@@ -53,7 +53,6 @@ class Users {
   static async fetchAllUser(req, res, next) {
     try {
       const userData = await User.find().select("socketId name status")
-      // console.log(userData)
       res.status(200).json(userData)
     } catch (error) {
       next(error)

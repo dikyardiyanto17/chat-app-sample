@@ -15,7 +15,6 @@ export default function ModalNewGroups() {
 
     const changeHandler = (e) => {
         setGroupName(e.target.value)
-        console.log(groupName)
     }
 
     const submitHandler = (e) => {

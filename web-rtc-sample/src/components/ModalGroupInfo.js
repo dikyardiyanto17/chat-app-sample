@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import { useDispatch } from 'react-redux';
-import { createGroupChat, findGroup, leaveRoom } from '../stores/action/actionCreator';
+import { findGroup, leaveRoom } from '../stores/action/actionCreator';
 
 export default function ModalGroupInfo({ roomData }) {
     const dispatch = useDispatch()
