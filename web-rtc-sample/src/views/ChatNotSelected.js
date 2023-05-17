@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { getUsers } from "../stores/action/actionCreator"
+import LogOutButton from '../components/LogOutButton'
+import GroupChatButton from '../components/GroupChatButton'
 
 export default function ChatNotSelected({ socket }) {
     const dispatch = useDispatch()
@@ -66,6 +68,8 @@ export default function ChatNotSelected({ socket }) {
                                 <div className="chat-message clearfix">
                                 </div>
                             </div>
+                            <GroupChatButton />
+                            <LogOutButton />
                         </div>
                     </div>
                 </div>

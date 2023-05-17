@@ -3,6 +3,8 @@ import '../assets/css/Chat.css'
 import LogOutButton from "../components/LogOutButton"
 import { useDispatch, useSelector } from 'react-redux'
 import { findGroup, getUsers } from '../stores/action/actionCreator'
+import ModalNewGroups from '../components/ModalNewGroups'
+import PersonalChatButton from '../components/PersonalChatButton'
 
 export default function GroupChatNotSelected({ socket }) {
     const dispatch = useDispatch()
@@ -54,6 +56,8 @@ export default function GroupChatNotSelected({ socket }) {
                             </div>
                             <div className="chat-message clearfix">
                             </div>
+                            <ModalNewGroups />
+                            <PersonalChatButton />
                             <LogOutButton />
                         </div>
                     </div>

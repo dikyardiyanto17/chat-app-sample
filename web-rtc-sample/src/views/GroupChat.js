@@ -7,6 +7,7 @@ import ChatBarGroup from '../components/ChatBarGroup'
 import { useNavigate, useParams } from 'react-router-dom'
 import ListRooms from '../components/ListRoom'
 import ModalNewGroups from '../components/ModalNewGroups'
+import PersonalChatButton from '../components/PersonalChatButton'
 
 export default function GroupChat({ socket }) {
     const dispatch = useDispatch()
@@ -65,6 +66,7 @@ export default function GroupChat({ socket }) {
                             </div>
                             <ChatBarGroup socket={socket} roomData={roomData} users={users} setRoomData={setRoomData}/>
                             <ModalNewGroups />
+                            <PersonalChatButton />
                             <LogOutButton />
                         </div>
                     </div>

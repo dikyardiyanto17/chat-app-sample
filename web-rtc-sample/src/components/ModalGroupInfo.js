@@ -31,12 +31,9 @@ export default function ModalGroupInfo({ roomData, users, setRoomData, socket })
     return (
         <>
             <h6 className="m-b-0" onClick={handleShow} style={{ cursor: 'pointer' }}>{roomData?.name}</h6>
-
-
             <Modal show={showInfo} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <h6 className="m-b-0">{roomData?.name}</h6>
-
                 </Modal.Header>
                 <Form>
                     <Modal.Body>
@@ -48,7 +45,7 @@ export default function ModalGroupInfo({ roomData, users, setRoomData, socket })
                                 )
                             })}
                         </ul>
-                        {notMembers &&
+                        {notMembers.length != 0 &&
                             <>
                                 <h3>Add Members</h3>
                                 <ul className="list-group">
