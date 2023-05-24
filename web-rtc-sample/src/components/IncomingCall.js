@@ -5,12 +5,15 @@ import Modal from 'react-bootstrap/Modal';
 import { useDispatch } from 'react-redux';
 import { createGroupChat, findGroup } from '../stores/action/actionCreator';
 
-export default function IncomingCall({ socket, setIncomingCall }) {
+export default function IncomingCall({ socket, setIncomingCall, acceptCall, rejectCall }) {
     const dispatch = useDispatch()
     const [show, setShow] = useState(true);
 
-    const handleClose = () => setIncomingCall(false);
-    const handleShow = () => setIncomingCall(true);
+    const handleClose = () => {
+        rejectCall()
+        setIncomingCall(false)
+    }
+
 
     return (
         <>
@@ -22,7 +25,10 @@ export default function IncomingCall({ socket, setIncomingCall }) {
                     <Button variant="danger" onClick={handleClose}>
                         Reject
                     </Button>
-                    <Button variant="primary" onClick={handleClose}>
+                    <Button variant="primary" onClick={() => {
+                        handleClose()
+                        acceptCall()
+                    }}>
                         Accept
                     </Button>
                 </Modal.Body>

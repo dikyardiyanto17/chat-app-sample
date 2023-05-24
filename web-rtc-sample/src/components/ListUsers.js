@@ -39,7 +39,7 @@ export default function ListUsers({ userInfo, socket }) {
                     const nameRoom = roomName.sort().join('_')
 
                     // Lind Development video call -->
-                    socket.emit("room:join", { email: localStorage.getItem("name"), room: nameRoom });
+                    // socket.emit("room:join", { email: localStorage.getItem("name"), room: nameRoom });
                     // <-- Lind Development video call 
 
                     socket.emit('join', nameRoom)
