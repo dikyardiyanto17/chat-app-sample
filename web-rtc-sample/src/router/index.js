@@ -9,6 +9,8 @@ import Chat from "../views/Chat";
 import ChatNotSelected from "../views/ChatNotSelected";
 import GroupChatNotSelected from "../views/GroupChatNotSelected";
 import GroupChat from "../views/GroupChat";
+import GroupChatDataChannel from "../Trials/GroupChatDataChannel";
+import Try2 from "../Trials/Try2";
 const socket = socketIO.connect("http://localhost:2222/", {
     transports: ['polling', 'websocket'],
     transportOptions: {
@@ -48,7 +50,15 @@ const router = createBrowserRouter([
             },
             {
                 path: 'groupchat/:room',
-                element: <GroupChat socket={socket}/>
+                element: <GroupChat socket={socket} />
+            },
+            {
+                path: 'groupcall',
+                element: <GroupChatDataChannel socket={socket} />
+            },
+            {
+                path: 'try2',
+                element: <Try2 />
             }
         ]
     },

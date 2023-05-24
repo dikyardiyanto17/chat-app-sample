@@ -9,6 +9,15 @@ export default function ChatBar({ socket }) {
     const dispatch = useDispatch()
     const [userData, setUserData] = useState()
     const messagePosition = (name, compareName) => name == compareName ? "message my-message" : "message other-message float-right"
+    const checkDisplay = (name, compareName, isReads) => {
+        if (name == compareName) {
+            console.log(isReads, "<<<<")
+            if (isReads.length == 2) { return "fa fa-check-double" }
+            else { return "fa fa-check" }
+        } else {
+            return 'd-none'
+        }
+    }
     const datePosition = (name, compareName) => name == compareName ? "message-data" : "message-data text-right"
     const [typing, setTyping] = useState('')
     const user = useSelector((state) => state.users.user)
@@ -53,13 +62,19 @@ export default function ChatBar({ socket }) {
         e.preventDefault()
         dispatch(findUser(chatto)).then((data) => {
             const roomName = [localStorage.getItem("name"), data.name].sort().join('_')
+            let isReads = [localStorage.getItem("name")]
+            if (isOnline(userData?.socketId)){
+                isReads.push(userData.name)
+            }
+
             const data2 = {
                 room: roomName,
                 message: typing,
                 sender: localStorage.getItem("name"),
                 receiver: data.name,
                 sentAt: new Date(),
-                _id: Math.random()
+                _id: Math.random(),
+                isReads
             }
             dispatch(sendChat({ message: typing, sender: localStorage.getItem("name"), receiver: data.name }))
             socket.emit("chat message", data2)
@@ -68,7 +83,9 @@ export default function ChatBar({ socket }) {
         })
     }
     useEffect(() => {
-        dispatch(findChat(chatto))
+        dispatch(findChat(chatto)).then((data) => {
+            console.log(data)
+        })
         socket.on("response", (data) => {
             setCurrentChats([...currentChats, data])
         })
@@ -113,7 +130,7 @@ export default function ChatBar({ socket }) {
                                 <div className={datePosition(localStorage.getItem("name"), chat?.sender)}>
                                     <span className="message-data-time">{formatTime(chat?.sentAt)}</span>
                                 </div>
-                                <div className={messagePosition(localStorage.getItem("name"), chat.sender)}>{chat?.message}</div>
+                                <div className={messagePosition(localStorage.getItem("name"), chat.sender)} style={{ position: 'relative' }}><i className={checkDisplay(localStorage.getItem("name"), chat.sender, chat.isReads)} style={{ width: '10px', position: 'absolute', bottom: '0px', left: '0px' }}></i>{chat?.message}</div>
                             </li>
                         )
                     })}
