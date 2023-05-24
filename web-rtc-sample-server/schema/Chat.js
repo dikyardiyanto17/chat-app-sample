@@ -19,6 +19,9 @@ const chatSchema = new Schema({
     },
     readAt : {
         type : Date
+    },
+    isReads: {
+        type: [String]
     }
 })
 

@@ -11,7 +11,19 @@ class Chats {
             const userSenderData = await User.findById(userId)
             if (userReceiverData) {
                 const chatData = await Chat.find().or([{ receiver: userSenderData.name, sender: userReceiverData.name }, { sender: userSenderData.name, receiver: userReceiverData.name }])
-                res.status(200).json(chatData)
+                if (chatData.length == 0) {
+                    console.log("HELLo")
+                    return res.status(200).json(chatData)
+                }
+                const readChat = chatData.map(async (chat) => {
+                    if (!chat.isReads.includes(userSenderData.name)) {
+                        chat.isReads.push(userSenderData.name)
+                        console.log(chat.isReads, "INI DI PUSH");
+                        await Chat.findByIdAndUpdate(chat._id, { isReads: chat.isReads })
+                    }
+                })
+                const chatDataNewest = await Chat.find().or([{ receiver: userSenderData.name, sender: userReceiverData.name }, { sender: userSenderData.name, receiver: userReceiverData.name }])
+                res.status(200).json(chatDataNewest)
             } else {
                 const groupChatData = await Room.findById(id)
                 const chatData = await Chat.find({ room: groupChatData.name })
@@ -43,10 +55,10 @@ class Chats {
                 if (!data) {
                     throw { name: "Not Found", message: "Room is not exist" }
                 }
-                await Chat.create({ room: roomName, sender, message, sentAt: new Date() })
+                await Chat.create({ room: roomName, sender, message, sentAt: new Date(), isReads: [sender] })
                 return res.status(201).json({ message })
             } else if (message && sender && receiver) {
-                await Chat.create({ message, sender, receiver, sentAt: new Date() })
+                await Chat.create({ message, sender, receiver, sentAt: new Date(), isReads: [sender] })
                 return res.status(201).json({ message })
             } else {
                 throw { name: "Bad Request", message: "Request is not valid" }
