@@ -59,6 +59,9 @@ class Chats {
             } else if (message && sender && receiver) {
                 await Chat.create({ message, sender, receiver, sentAt: new Date(), isReads: [sender] })
                 return res.status(201).json({ message })
+                // Development read chat --> 
+                // const chat = await
+                // <-- Development read chat
             } else {
                 throw { name: "Bad Request", message: "Request is not valid" }
             }

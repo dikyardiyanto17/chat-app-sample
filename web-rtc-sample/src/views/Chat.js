@@ -11,6 +11,7 @@ import GroupChatButton from '../components/GroupChatButton'
 export default function Chat({ socket }) {
     const dispatch = useDispatch()
     const users = useSelector((state) => state.users.users)
+    const [currentRoom, setCurrentRoom] = useState('')
     const [updateUsers, setUpdateUsers] = useState([])
     const { chatto } = useParams()
 
@@ -26,12 +27,12 @@ export default function Chat({ socket }) {
         dispatch(findUser(chatto)).then((data) => {
             const roomName = [localStorage.getItem('name'), data.name]
             const nameRoom = roomName.sort().join('_')
+            setCurrentRoom(nameRoom)
             socket.emit('join', nameRoom)
         })
         dispatch(findChat(chatto))
         dispatch(getUsers())
     }, [])
-
 
     return (
         <>
@@ -50,7 +51,7 @@ export default function Chat({ socket }) {
                                     {updateUsers &&
                                         <>
                                             {updateUsers.map((user) => {
-                                                return (<ListUsers key={user._id} userInfo={user} socket={socket} />)
+                                                return (<ListUsers key={user._id} userInfo={user} socket={socket} currentRoom={currentRoom} setCurrentRoom={setCurrentRoom}/>)
                                             })}
                                         </>}
                                 </ul>

@@ -28,8 +28,6 @@ app.use(express.json())
 
 app.use(router)
 app.use(errorHandler)
-const emailToSocketIdMap = new Map();
-const socketidToEmailMap = new Map();
 io.on('connection', (socket) => {
     Users.currentUserServer(socket.handshake.headers.token, socket.id).then((_) => {
         Users.getUserFromServer().then((data) => {
@@ -38,10 +36,15 @@ io.on('connection', (socket) => {
     })
     socket.on('join', (data) => {
         socket.join(data)
+        io.emit('updating message', "Nothing")
+    })
+
+    socket.on('leave', (data) => {
+        socket.leave(data)
     })
 
     socket.on('chat message', (data) => {
-        socket.to(data.room).emit('response', data);
+        io.to(data.room).emit('response', data);
     });
 
     socket.on('private message', (data) => {
