@@ -1,17 +1,153 @@
 import '../assets/css/Chat.css'
 import { useParams } from "react-router-dom"
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { getUsers, findUser, findChat, sendChat } from "../stores/action/actionCreator"
 
+// Line Development video call using peer -->
+
+import peer from '../service/peer.js'
+import IncomingCall from './IncomingCall'
+import CallUser from './CallUser'
+import VideoCall from './VideoCall'
+
+// <-- Line Development
+
 export default function ChatBar({ socket }) {
+
+    // Line Development video call using peer -->
+
+    const [remoteSocketId, setRemoteSocketId] = useState(null);
+    const [myStream, setMyStream] = useState();
+    const [remoteStream, setRemoteStream] = useState();
+    const [incomingCall, setIncomingCall] = useState(false)
+    const [offers, setOffers] = useState()
+    const [calling, setCalling] = useState(false)
+    const [isCalling, setIsCalling] = useState(false)
+
+    const handleCallUser = async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+        });
+        console.log("CALL AGAIN")
+        const offer = await peer.getOffer();
+        socket.emit("user:call", { to: userData.socketId, offer });
+        setCalling(true)
+        setMyStream(stream);
+    }
+    const handleIncommingCall = async ({ from, offer }) => {
+        setOffers(offer)
+        setRemoteSocketId(from);
+        setIncomingCall(true)
+    }
+
+    const acceptCall = async () => {
+        const ans = await peer.getAnswer(offers);
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+        });
+        setMyStream(stream);
+        sendStreams2(stream)
+        socket.emit("call:accepted", { to: remoteSocketId, ans });
+    }
+
+    const rejectCall = async () => {
+        console.log("REJECTED")
+        socket.emit("call:rejected", ({ to: remoteSocketId }))
+    }
+
+    const sendStreams2 = (stream) => {
+        for (const track of stream.getTracks()) {
+            console.log(track)
+            peer.peer.addTrack(track, stream);
+        }
+    }
+
+    const sendStreams = useCallback(() => {
+        for (const track of myStream.getTracks()) {
+            console.log(track)
+            peer.peer.addTrack(track, myStream);
+        }
+    }, [myStream]);
+
+    const cancelCall = () => {
+        socket.emit("cancelCall", {to: userData.socketId})
+    }
+
+    const endCalling = () => {
+        socket.emit("endCalling", { to: userData.socketId })
+    }
+
+    const handleCallAccepted = useCallback(
+        ({ from, ans }) => {
+            peer.setLocalDescription(ans);
+            console.log("Call Accepted!");
+            setCalling(false)
+            sendStreams();
+        },
+        [sendStreams]
+    );
+
+    const handleNegoNeeded = useCallback(async () => {
+        const offer = await peer.getOffer();
+        socket.emit("peer:nego:needed", { offer, to: remoteSocketId });
+    }, [remoteSocketId, socket]);
+
+    useEffect(() => {
+        peer.peer.addEventListener("negotiationneeded", handleNegoNeeded);
+        return () => {
+            peer.peer.removeEventListener("negotiationneeded", handleNegoNeeded);
+        };
+    }, [handleNegoNeeded]);
+
+    const handleNegoNeedIncomming = useCallback(
+        async ({ from, offer }) => {
+            const ans = await peer.getAnswer(offer);
+            socket.emit("peer:nego:done", { to: from, ans });
+        },
+        [socket]
+    );
+
+    const handleNegoNeedFinal = useCallback(async ({ ans }) => {
+        await peer.setLocalDescription(ans);
+    }, []);
+
+    useEffect(() => {
+        console.log("ENTER TRACK")
+        peer.peer.addEventListener("track", async (ev) => {
+            const remoteStream = ev.streams;
+            console.log("Success Sharing");
+            setRemoteStream(remoteStream[0]);
+        });
+    }, []);
+
+    useEffect(() => {
+        socket.on("incomming:call", handleIncommingCall);
+        socket.on("call:accepted", handleCallAccepted);
+        socket.on("peer:nego:needed", handleNegoNeedIncomming);
+        socket.on("peer:nego:final", handleNegoNeedFinal);
+
+        return () => {
+            socket.off("incomming:call", handleIncommingCall);
+            socket.off("call:accepted", handleCallAccepted);
+            socket.off("peer:nego:needed", handleNegoNeedIncomming);
+            socket.off("peer:nego:final", handleNegoNeedFinal);
+        };
+    }, [
+        handleIncommingCall,
+        handleCallAccepted,
+        handleNegoNeedIncomming,
+        handleNegoNeedFinal,
+    ]);
+
+    // <-- Line Development
+
     const chatEndRef = useRef(null);
     const dispatch = useDispatch()
     const [userData, setUserData] = useState()
     const messagePosition = (name, compareName) => name == compareName ? "message my-message" : "message other-message float-right"
     const checkDisplay = (name, compareName, isReads) => {
         if (name == compareName) {
-            console.log(isReads, "<<<<")
             if (isReads.length == 2) { return "fa fa-check-double" }
             else { return "fa fa-check" }
         } else {
@@ -63,7 +199,7 @@ export default function ChatBar({ socket }) {
         dispatch(findUser(chatto)).then((data) => {
             const roomName = [localStorage.getItem("name"), data.name].sort().join('_')
             let isReads = [localStorage.getItem("name")]
-            if (isOnline(userData?.socketId)){
+            if (isOnline(userData?.socketId)) {
                 isReads.push(userData.name)
             }
 
@@ -83,9 +219,7 @@ export default function ChatBar({ socket }) {
         })
     }
     useEffect(() => {
-        dispatch(findChat(chatto)).then((data) => {
-            console.log(data)
-        })
+        dispatch(findChat(chatto))
         socket.on("response", (data) => {
             setCurrentChats([...currentChats, data])
         })
@@ -94,6 +228,7 @@ export default function ChatBar({ socket }) {
 
     useEffect(() => {
         dispatch(findChat(chatto)).then((data) => setCurrentChats(data))
+        dispatch(findUser(chatto)).then((data) => setUserData(data))
         dispatch(getUsers())
     }, [chatto])
 
@@ -101,10 +236,28 @@ export default function ChatBar({ socket }) {
         socket.on('updating users', (data) => {
             dispatch(findUser(chatto)).then((data) => setUserData(data))
         })
+
+        socket.on("call:rejected", ({ isAccepted }) => {
+            setIncomingCall(false)
+            setCalling(false)
+        })
+
+        socket.on("cancelCall", (data) => {
+            console.log("canceling call")
+            setIncomingCall(false)
+            setCalling(false)
+        })
+
+        socket.on("calling", (data) => {
+            setIsCalling(true)
+        })
+
+        socket.on("endCalling", (data) => {
+            setIsCalling(false)
+        })
+
+        //     dispatch(findUser(chatto)).then((data) => setUserData(data))
     }, [])
-    // useEffect(() => {
-    //     dispatch(findUser(chatto)).then((data) => setUserData(data))
-    // }, [])
     return (
         <div className="chat">
             <div className="chat-header clearfix">
@@ -118,7 +271,20 @@ export default function ChatBar({ socket }) {
                             <small><i className={isOnline(userData?.socketId)}></i> {isOnlineStatus(userData?.socketId)}</small>
                         </div>
                     </div>
-                    <div className="col-lg-6 hidden-sm text-right">
+                    <div className="col-lg-6 hidden-sm text-right d-flex align-items-center flex-row-reverse">
+
+                        {/* Line Development*/}
+
+                        {userData?.socketId &&
+                            <small onClick={handleCallUser}><i className='fa fa-phone'></i></small>
+                        }
+                        {calling && <CallUser calling={calling} setCalling={setCalling} rejectCall={rejectCall} cancelCall={cancelCall}/>}
+                        {incomingCall && <IncomingCall setIncomingCall={setIncomingCall} acceptCall={acceptCall} rejectCall={rejectCall} />}
+                        {isCalling && <VideoCall setIsCalling={setIsCalling} isCalling={isCalling} remoteStream={remoteStream} myStream={myStream} endCalling={endCalling} />}
+
+                        {/* Line Development*/}
+
+
                     </div>
                 </div>
             </div>

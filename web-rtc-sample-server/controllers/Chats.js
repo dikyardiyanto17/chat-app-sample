@@ -12,7 +12,6 @@ class Chats {
             if (userReceiverData) {
                 const chatData = await Chat.find().or([{ receiver: userSenderData.name, sender: userReceiverData.name }, { sender: userSenderData.name, receiver: userReceiverData.name }])
                 if (chatData.length == 0) {
-                    console.log("HELLo")
                     return res.status(200).json(chatData)
                 }
                 const readChat = chatData.map(async (chat) => {

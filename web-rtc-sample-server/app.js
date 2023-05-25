@@ -28,11 +28,12 @@ app.use(express.json())
 
 app.use(router)
 app.use(errorHandler)
+const emailToSocketIdMap = new Map();
+const socketidToEmailMap = new Map();
 io.on('connection', (socket) => {
     Users.currentUserServer(socket.handshake.headers.token, socket.id).then((_) => {
         Users.getUserFromServer().then((data) => {
             io.emit("updating users", data)
-            console.log("ONLINE")
         })
     })
     socket.on('join', (data) => {
@@ -59,11 +60,45 @@ io.on('connection', (socket) => {
         console.log(socket.id, data)
     })
 
+    // Development Video Call -->
+
+    socket.on("user:call", ({ to, offer }) => {
+        console.log(socket.id, to)
+        io.to(to).emit("incomming:call", { from: socket.id, offer });
+    });
+
+    socket.on("call:accepted", ({ to, ans }) => {
+        io.to(to).emit("call:accepted", { from: socket.id, ans });
+        io.to(to).to(socket.id).emit("calling", true)
+    });
+
+    socket.on("call:rejected", ({to}) => {
+        io.to(to).emit("call:rejected", ({isAccepted: false}))
+    })
+
+    socket.on("peer:nego:needed", ({ to, offer }) => {
+        io.to(to).emit("peer:nego:needed", { from: socket.id, offer });
+    });
+
+    socket.on("peer:nego:done", ({ to, ans }) => {
+        io.to(to).emit("peer:nego:final", { from: socket.id, ans });
+    });
+
+    socket.on("cancelCall", ({to}) => {
+        io.to(to).to(socket.id).emit("cancelCall", {isCanceling: true})
+    })
+
+    socket.on("endCalling", ({to}) => {
+        console.log(to, socket.id)
+        io.to(to).to(socket.id).emit("endCalling", true)
+    })
+
+    // <-- Development Video Call
+
     socket.on("disconnect", () => {
         Users.removeSocketId(socket.id).then((_) => {
             Users.getUserFromServer().then((data) => {
                 io.emit("updating users", data)
-                console.log("OFFLINE")
             })
         })
     })

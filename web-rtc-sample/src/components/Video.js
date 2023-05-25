@@ -21,7 +21,6 @@ const Room = ({ socket }) => {
                 video: { width: 500, height: 500 },
             })
             .then((stream) => {
-                /* use the stream */
                 userStreamRef.current = stream;
                 userVideoRef.current.srcObject = stream;
                 userVideoRef.current.onloadedmetadata = () => {
@@ -29,7 +28,6 @@ const Room = ({ socket }) => {
                 };
             })
             .catch((err) => {
-                /* handle the error */
                 console.log(err);
             });
     };

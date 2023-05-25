@@ -1,15 +1,12 @@
 import '../assets/css/Chat.css'
-import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
+import { useDispatch } from "react-redux"
 import { getUsers } from "../stores/action/actionCreator"
 import LogOutButton from '../components/LogOutButton'
 import GroupChatButton from '../components/GroupChatButton'
 
 export default function ChatNotSelected({ socket }) {
     const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const users = useSelector((state) => state.users.users)
     const [updateUsers, setUpdateUsers] = useState([])
     const isOnline = (socketId) => socketId ? "fa fa-circle online" : "fa fa-circle offline"
     const isOnline2 = (socketId) => socketId ? "Online" : "Offline"
@@ -19,10 +16,11 @@ export default function ChatNotSelected({ socket }) {
             setUpdateUsers(data)
             getUsers()
         })
-    }, [])
+    }, [socket])
     useEffect(() => {
-        dispatch(getUsers())
+        dispatch(getUsers()).then((data) => setUpdateUsers(data))
     }, [])
+
     return (
         <>
             <div className="container">
@@ -40,12 +38,16 @@ export default function ChatNotSelected({ socket }) {
                                     {updateUsers &&
                                         <>
                                             {updateUsers.map((user) => {
-                                                if (user.name != localStorage.getItem("name")) {
+                                                if (user.name !== localStorage.getItem("name")) {
                                                     return (
                                                         <li className="clearfix" key={user._id} onClick={() => {
                                                             const roomName = [localStorage.getItem('name'), user.name]
                                                             const nameRoom = roomName.sort().join('_')
                                                             socket.emit('join', nameRoom)
+                                                            // Lind Development video call -->
+                                                            socket.emit("room:join", { email: localStorage.getItem("name"), room : nameRoom });
+                                                            // <-- Lind Development video call 
+
                                                             window.location.href = `/chat/${user._id}`;
                                                         }}>
                                                             <img src="https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?20150327203541" alt="avatar" />
