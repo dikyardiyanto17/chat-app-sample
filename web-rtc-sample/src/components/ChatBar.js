@@ -29,7 +29,7 @@ export default function ChatBar({ socket }) {
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: true,
         });
-        // console.log("CALL AGAIN")
+        console.log("CALL AGAIN")
         const offer = await peer.getOffer();
         socket.emit("user:call", { to: userData.socketId, offer });
         setCalling(true)
@@ -52,7 +52,7 @@ export default function ChatBar({ socket }) {
     }
 
     const rejectCall = async () => {
-        setCalling(false)
+        console.log("REJECTED")
         socket.emit("call:rejected", ({ to: remoteSocketId }))
     }
 
@@ -69,6 +69,10 @@ export default function ChatBar({ socket }) {
             peer.peer.addTrack(track, myStream);
         }
     }, [myStream]);
+
+    const cancelCall = () => {
+        socket.emit("cancelCall", {to: userData.socketId})
+    }
 
     const endCalling = () => {
         socket.emit("endCalling", { to: userData.socketId })
@@ -234,6 +238,13 @@ export default function ChatBar({ socket }) {
         })
 
         socket.on("call:rejected", ({ isAccepted }) => {
+            setIncomingCall(false)
+            setCalling(false)
+        })
+
+        socket.on("cancelCall", (data) => {
+            console.log("canceling call")
+            setIncomingCall(false)
             setCalling(false)
         })
 
@@ -264,9 +275,10 @@ export default function ChatBar({ socket }) {
 
                         {/* Line Development*/}
 
-                        {userData?.socketId && <button onClick={handleCallUser}>
-                            <small><i className='fa fa-phone'><CallUser calling={calling} setCalling={setCalling} rejectCall={rejectCall} /></i></small>
-                        </button>}
+                        {userData?.socketId &&
+                            <small onClick={handleCallUser}><i className='fa fa-phone'></i></small>
+                        }
+                        {calling && <CallUser calling={calling} setCalling={setCalling} rejectCall={rejectCall} cancelCall={cancelCall}/>}
                         {incomingCall && <IncomingCall setIncomingCall={setIncomingCall} acceptCall={acceptCall} rejectCall={rejectCall} />}
                         {isCalling && <VideoCall setIsCalling={setIsCalling} isCalling={isCalling} remoteStream={remoteStream} myStream={myStream} endCalling={endCalling} />}
 

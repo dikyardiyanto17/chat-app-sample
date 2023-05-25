@@ -84,6 +84,10 @@ io.on('connection', (socket) => {
         io.to(to).emit("peer:nego:final", { from: socket.id, ans });
     });
 
+    socket.on("cancelCall", ({to}) => {
+        io.to(to).to(socket.id).emit("cancelCall", {isCanceling: true})
+    })
+
     socket.on("endCalling", ({to}) => {
         console.log(to, socket.id)
         io.to(to).to(socket.id).emit("endCalling", true)
