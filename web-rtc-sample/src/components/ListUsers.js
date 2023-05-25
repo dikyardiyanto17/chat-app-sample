@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useCallback, useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import { getUsers, findUser } from "../stores/action/actionCreator"
-export default function ListUsers({ userInfo, socket }) {
+export default function ListUsers({ userInfo, socket, currentRoom, setCurrentRoom }) {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const { chatto } = useParams()
@@ -37,11 +37,12 @@ export default function ListUsers({ userInfo, socket }) {
                     dispatch(getUsers())
                     const roomName = [localStorage.getItem('name'), userInfo.name]
                     const nameRoom = roomName.sort().join('_')
+                    setCurrentRoom(nameRoom)
 
                     // Lind Development video call -->
                     // socket.emit("room:join", { email: localStorage.getItem("name"), room: nameRoom });
                     // <-- Lind Development video call 
-
+                    socket.emit('leave', nameRoom)
                     socket.emit('join', nameRoom)
                     navigate(`/chat/${userInfo._id}`)
                 }}>

@@ -71,7 +71,7 @@ export default function ChatBar({ socket }) {
     }, [myStream]);
 
     const cancelCall = () => {
-        socket.emit("cancelCall", {to: userData.socketId})
+        socket.emit("cancelCall", { to: userData.socketId })
     }
 
     const endCalling = () => {
@@ -199,10 +199,6 @@ export default function ChatBar({ socket }) {
         dispatch(findUser(chatto)).then((data) => {
             const roomName = [localStorage.getItem("name"), data.name].sort().join('_')
             let isReads = [localStorage.getItem("name")]
-            if (isOnline(userData?.socketId)) {
-                isReads.push(userData.name)
-            }
-
             const data2 = {
                 room: roomName,
                 message: typing,
@@ -214,14 +210,14 @@ export default function ChatBar({ socket }) {
             }
             dispatch(sendChat({ message: typing, sender: localStorage.getItem("name"), receiver: data.name }))
             socket.emit("chat message", data2)
-            setCurrentChats([...currentChats, data2])
             setTyping('')
         })
     }
     useEffect(() => {
         dispatch(findChat(chatto))
         socket.on("response", (data) => {
-            setCurrentChats([...currentChats, data])
+            dispatch(findChat(chatto)).then((theData) => setCurrentChats(theData))
+            // setCurrentChats([...currentChats, data])
         })
         chatEndRef.current.scrollIntoView({ behavior: "smooth" });
     }, [socket, currentChats])
@@ -235,6 +231,10 @@ export default function ChatBar({ socket }) {
     useEffect(() => {
         socket.on('updating users', (data) => {
             dispatch(findUser(chatto)).then((data) => setUserData(data))
+        })
+
+        socket.on('updating message', (data) => {
+            dispatch(findChat(chatto)).then((data) => setCurrentChats(data))
         })
 
         socket.on("call:rejected", ({ isAccepted }) => {
@@ -255,8 +255,6 @@ export default function ChatBar({ socket }) {
         socket.on("endCalling", (data) => {
             setIsCalling(false)
         })
-
-        //     dispatch(findUser(chatto)).then((data) => setUserData(data))
     }, [])
     return (
         <div className="chat">
@@ -278,7 +276,7 @@ export default function ChatBar({ socket }) {
                         {userData?.socketId &&
                             <small onClick={handleCallUser}><i className='fa fa-phone'></i></small>
                         }
-                        {calling && <CallUser calling={calling} setCalling={setCalling} rejectCall={rejectCall} cancelCall={cancelCall}/>}
+                        {calling && <CallUser calling={calling} setCalling={setCalling} rejectCall={rejectCall} cancelCall={cancelCall} />}
                         {incomingCall && <IncomingCall setIncomingCall={setIncomingCall} acceptCall={acceptCall} rejectCall={rejectCall} />}
                         {isCalling && <VideoCall setIsCalling={setIsCalling} isCalling={isCalling} remoteStream={remoteStream} myStream={myStream} endCalling={endCalling} />}
 
