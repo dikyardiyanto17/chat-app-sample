@@ -7,8 +7,9 @@ import { getUsers, findUser, findChat, sendChat } from "../stores/action/actionC
 // Line Development video call using peer -->
 
 import peer from '../service/peer.js'
-import VideoCall from './VideoCall'
 import IncomingCall from './IncomingCall'
+import CallUser from './CallUser'
+import VideoCall from './VideoCall'
 
 // <-- Line Development
 
@@ -22,15 +23,16 @@ export default function ChatBar({ socket }) {
     const [incomingCall, setIncomingCall] = useState(false)
     const [offers, setOffers] = useState()
     const [calling, setCalling] = useState(false)
+    const [isCalling, setIsCalling] = useState(false)
 
     const handleCallUser = async () => {
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: true,
         });
+        // console.log("CALL AGAIN")
         const offer = await peer.getOffer();
         socket.emit("user:call", { to: userData.socketId, offer });
         setCalling(true)
-        // console.log(userData.socketId, offer, "OFFER")
         setMyStream(stream);
     }
     const handleIncommingCall = async ({ from, offer }) => {
@@ -45,61 +47,75 @@ export default function ChatBar({ socket }) {
             audio: true,
         });
         setMyStream(stream);
+        sendStreams2(stream)
         socket.emit("call:accepted", { to: remoteSocketId, ans });
     }
 
     const rejectCall = async () => {
         setCalling(false)
-        socket.emit("call:rejected", ({to: remoteSocketId}))
+        socket.emit("call:rejected", ({ to: remoteSocketId }))
     }
 
-      const sendStreams = useCallback(() => {
-        for (const track of myStream.getTracks()) {
-          peer.peer.addTrack(track, myStream);
+    const sendStreams2 = (stream) => {
+        for (const track of stream.getTracks()) {
+            console.log(track)
+            peer.peer.addTrack(track, stream);
         }
-      }, [myStream]);
+    }
 
-      const handleCallAccepted = useCallback(
+    const sendStreams = useCallback(() => {
+        for (const track of myStream.getTracks()) {
+            console.log(track)
+            peer.peer.addTrack(track, myStream);
+        }
+    }, [myStream]);
+
+    const endCalling = () => {
+        socket.emit("endCalling", { to: userData.socketId })
+    }
+
+    const handleCallAccepted = useCallback(
         ({ from, ans }) => {
-          peer.setLocalDescription(ans);
-          console.log("Call Accepted!");
-          setCalling(false)
-          sendStreams();
+            peer.setLocalDescription(ans);
+            console.log("Call Accepted!");
+            setCalling(false)
+            sendStreams();
         },
         [sendStreams]
-      );
+    );
 
-      const handleNegoNeeded = useCallback(async () => {
+    const handleNegoNeeded = useCallback(async () => {
         const offer = await peer.getOffer();
         socket.emit("peer:nego:needed", { offer, to: remoteSocketId });
-      }, [remoteSocketId, socket]);
+    }, [remoteSocketId, socket]);
 
-      useEffect(() => {
+    useEffect(() => {
         peer.peer.addEventListener("negotiationneeded", handleNegoNeeded);
         return () => {
-          peer.peer.removeEventListener("negotiationneeded", handleNegoNeeded);
+            peer.peer.removeEventListener("negotiationneeded", handleNegoNeeded);
         };
-      }, [handleNegoNeeded]);
+    }, [handleNegoNeeded]);
 
-      const handleNegoNeedIncomming = useCallback(
+    const handleNegoNeedIncomming = useCallback(
         async ({ from, offer }) => {
-          const ans = await peer.getAnswer(offer);
-          socket.emit("peer:nego:done", { to: from, ans });
+            const ans = await peer.getAnswer(offer);
+            socket.emit("peer:nego:done", { to: from, ans });
         },
         [socket]
-      );
+    );
 
-      const handleNegoNeedFinal = useCallback(async ({ ans }) => {
+    const handleNegoNeedFinal = useCallback(async ({ ans }) => {
         await peer.setLocalDescription(ans);
-      }, []);
+    }, []);
 
-      useEffect(() => {
+    useEffect(() => {
+        console.log("ENTER TRACK")
         peer.peer.addEventListener("track", async (ev) => {
-          const remoteStream = ev.streams;
-          console.log("GOT TRACKS!!");
-          setRemoteStream(remoteStream[0]);
+            const remoteStream = ev.streams;
+            console.log("Success Sharing");
+            setRemoteStream(remoteStream[0]);
         });
-      }, []);
+    }, []);
 
     useEffect(() => {
         socket.on("incomming:call", handleIncommingCall);
@@ -109,9 +125,9 @@ export default function ChatBar({ socket }) {
 
         return () => {
             socket.off("incomming:call", handleIncommingCall);
-              socket.off("call:accepted", handleCallAccepted);
-              socket.off("peer:nego:needed", handleNegoNeedIncomming);
-              socket.off("peer:nego:final", handleNegoNeedFinal);
+            socket.off("call:accepted", handleCallAccepted);
+            socket.off("peer:nego:needed", handleNegoNeedIncomming);
+            socket.off("peer:nego:final", handleNegoNeedFinal);
         };
     }, [
         handleIncommingCall,
@@ -217,14 +233,20 @@ export default function ChatBar({ socket }) {
             dispatch(findUser(chatto)).then((data) => setUserData(data))
         })
 
-        socket.on("call:rejected", ({isAccepted}) => {
+        socket.on("call:rejected", ({ isAccepted }) => {
             setCalling(false)
         })
+
+        socket.on("calling", (data) => {
+            setIsCalling(true)
+        })
+
+        socket.on("endCalling", (data) => {
+            setIsCalling(false)
+        })
+
         //     dispatch(findUser(chatto)).then((data) => setUserData(data))
     }, [])
-    // useEffect(() => {
-    //     dispatch(findUser(chatto)).then((data) => setUserData(data))
-    // }, [])
     return (
         <div className="chat">
             <div className="chat-header clearfix">
@@ -243,9 +265,10 @@ export default function ChatBar({ socket }) {
                         {/* Line Development*/}
 
                         {userData?.socketId && <button onClick={handleCallUser}>
-                            <VideoCall calling={calling} setCalling={setCalling} rejectCall={rejectCall}/>
+                            <small><i className='fa fa-phone'><CallUser calling={calling} setCalling={setCalling} rejectCall={rejectCall} /></i></small>
                         </button>}
-                        {incomingCall && <IncomingCall setIncomingCall={setIncomingCall} acceptCall={acceptCall} rejectCall={rejectCall}/>}
+                        {incomingCall && <IncomingCall setIncomingCall={setIncomingCall} acceptCall={acceptCall} rejectCall={rejectCall} />}
+                        {isCalling && <VideoCall setIsCalling={setIsCalling} isCalling={isCalling} remoteStream={remoteStream} myStream={myStream} endCalling={endCalling} />}
 
                         {/* Line Development*/}
 

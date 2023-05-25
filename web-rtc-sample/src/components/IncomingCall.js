@@ -5,7 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import { useDispatch } from 'react-redux';
 import { createGroupChat, findGroup } from '../stores/action/actionCreator';
 
-export default function IncomingCall({ socket, setIncomingCall, acceptCall, rejectCall }) {
+export default function IncomingCall({ socket, setIncomingCall, acceptCall, rejectCall, sendStreams }) {
     const dispatch = useDispatch()
     const [show, setShow] = useState(true);
 

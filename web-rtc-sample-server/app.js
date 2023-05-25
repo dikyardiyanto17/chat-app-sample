@@ -18,7 +18,7 @@ connect()
 app.use(cors())
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3001",
+        origin: "http://localhost:3000",
         methods: ['GET', "POST", "PUT"]
     },
 });
@@ -69,6 +69,7 @@ io.on('connection', (socket) => {
 
     socket.on("call:accepted", ({ to, ans }) => {
         io.to(to).emit("call:accepted", { from: socket.id, ans });
+        io.to(to).to(socket.id).emit("calling", true)
     });
 
     socket.on("call:rejected", ({to}) => {
@@ -76,14 +77,17 @@ io.on('connection', (socket) => {
     })
 
     socket.on("peer:nego:needed", ({ to, offer }) => {
-        console.log("peer:nego:needed", offer);
         io.to(to).emit("peer:nego:needed", { from: socket.id, offer });
     });
 
     socket.on("peer:nego:done", ({ to, ans }) => {
-        console.log("peer:nego:done", ans);
         io.to(to).emit("peer:nego:final", { from: socket.id, ans });
     });
+
+    socket.on("endCalling", ({to}) => {
+        console.log(to, socket.id)
+        io.to(to).to(socket.id).emit("endCalling", true)
+    })
 
     // <-- Development Video Call
 
